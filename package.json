@@ -1,0 +1,17 @@
+{
+  "name": "simple-fetch-api",
+  "version": "1.0.0",
+  "description": "Contoh proyek Node.js sederhana menggunakan native fetch API",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "checkin": "node index.js checkin",
+    "dashboard": "node index.js dashboard",
+    "me": "node index.js me",
+    "mine": "node index.js mine"
+  },
+  "keywords": ["nodejs", "fetch", "api"],
+  "author": "",
+  "license": "ISC"
+}

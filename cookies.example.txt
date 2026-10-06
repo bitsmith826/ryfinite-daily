@@ -1,0 +1,9 @@
+# Contoh format cookies.txt (1 cookie per baris)
+# Salin file ini menjadi cookies.txt, lalu tempel cookie asli Anda di sini.
+# Jangan pernah mengupload cookies.txt ke GitHub!
+
+# Akun 1
+_ga=GA1.1.123456789.1791300000; auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_token_1; csrf_token=dummy_csrf_token_1;
+
+# Akun 2
+_ga=GA1.1.987654321.1791300000; auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_token_2; csrf_token=dummy_csrf_token_2;

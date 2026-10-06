@@ -1,0 +1,13 @@
+# Credentials & Sensitive Data
+cookies.txt
+.env
+*.pem
+
+# Dependencies
+node_modules/
+
+# Logs & Cache
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
