@@ -73,3 +73,21 @@ export async function notifyExpiringTokens(expiringAccounts) {
     console.log(` ${c.brightGreen}✔ Notifikasi peringatan berhasil dikirim ke Telegram!${c.reset}`);
   }
 }
+
+/**
+ * Fungsi untuk menguji koneksi bot ke grup
+ */
+export async function testTelegramConnection() {
+  const { BOT_TOKEN, CHAT_ID } = CONFIG.TELEGRAM;
+  if (!BOT_TOKEN || !CHAT_ID) {
+    console.log(`\n ${c.brightRed}✖ TELEGRAM_BOT_TOKEN atau TELEGRAM_CHAT_ID belum diisi di file .env!${c.reset}`);
+    return;
+  }
+  console.log(`\n ${c.brightCyan}Mengirim pesan tes ke Chat/Grup ID: ${c.brightWhite}${CHAT_ID}${c.reset}...`);
+  const res = await sendTelegramMessage('🔔 <b>Tes Notifikasi Ryfinite</b>\n\nBot berhasil terhubung ke grup ini dan siap mengirim peringatan masa aktif token!');
+  if (res.success) {
+    console.log(` ${c.brightGreen}✔ Pesan tes BERHASIL terkirim ke grup Telegram Anda!${c.reset}\n`);
+  } else {
+    console.log(` ${c.brightRed}✖ Gagal mengirim: ${res.reason}${c.reset}\n`);
+  }
+}

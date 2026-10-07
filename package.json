@@ -9,7 +9,8 @@
     "checkin": "node index.js checkin",
     "dashboard": "node index.js dashboard",
     "me": "node index.js me",
-    "mine": "node index.js mine"
+    "mine": "node index.js mine",
+    "test:telegram": "node -e \"import('./telegram.js').then(m => m.testTelegramConnection())\""
   },
   "keywords": ["nodejs", "fetch", "api"],
   "author": "",
