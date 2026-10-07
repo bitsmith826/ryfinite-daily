@@ -7,7 +7,7 @@ import { c } from './ui.js';
  * Mengirim pesan teks ke Telegram
  */
 export async function sendTelegramMessage(text) {
-  const { BOT_TOKEN, CHAT_ID } = CONFIG.TELEGRAM;
+  const { BOT_TOKEN, CHAT_ID, THREAD_ID } = CONFIG.TELEGRAM;
 
   if (!BOT_TOKEN || !CHAT_ID) {
     // Lewati jika belum dikonfigurasi
@@ -15,17 +15,23 @@ export async function sendTelegramMessage(text) {
   }
 
   const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+  const bodyPayload = {
+    chat_id: CHAT_ID,
+    text,
+    parse_mode: 'HTML',
+    disable_web_page_preview: true
+  };
+
+  // Kirim ke thread / topik tertentu jika ditentukan
+  if (THREAD_ID) {
+    bodyPayload.message_thread_id = THREAD_ID;
+  }
 
   try {
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: CHAT_ID,
-        text,
-        parse_mode: 'HTML',
-        disable_web_page_preview: true
-      })
+      body: JSON.stringify(bodyPayload)
     });
 
     const result = await response.json();
@@ -78,15 +84,16 @@ export async function notifyExpiringTokens(expiringAccounts) {
  * Fungsi untuk menguji koneksi bot ke grup
  */
 export async function testTelegramConnection() {
-  const { BOT_TOKEN, CHAT_ID } = CONFIG.TELEGRAM;
+  const { BOT_TOKEN, CHAT_ID, THREAD_ID } = CONFIG.TELEGRAM;
   if (!BOT_TOKEN || !CHAT_ID) {
     console.log(`\n ${c.brightRed}✖ TELEGRAM_BOT_TOKEN atau TELEGRAM_CHAT_ID belum diisi di file .env!${c.reset}`);
     return;
   }
-  console.log(`\n ${c.brightCyan}Mengirim pesan tes ke Chat/Grup ID: ${c.brightWhite}${CHAT_ID}${c.reset}...`);
-  const res = await sendTelegramMessage('🔔 <b>Tes Notifikasi Ryfinite</b>\n\nBot berhasil terhubung ke grup ini dan siap mengirim peringatan masa aktif token!');
+  const targetDesc = THREAD_ID ? `Grup ID: ${CHAT_ID} (Topic/Thread: #${THREAD_ID})` : `Chat/Grup ID: ${CHAT_ID}`;
+  console.log(`\n ${c.brightCyan}Mengirim pesan tes ke ${c.brightWhite}${targetDesc}${c.reset}...`);
+  const res = await sendTelegramMessage('🔔 <b>Tes Notifikasi Ryfinite</b>\n\nBot berhasil terhubung ke topik/thread ini dan siap mengirim peringatan masa aktif token!');
   if (res.success) {
-    console.log(` ${c.brightGreen}✔ Pesan tes BERHASIL terkirim ke grup Telegram Anda!${c.reset}\n`);
+    console.log(` ${c.brightGreen}✔ Pesan tes BERHASIL terkirim ke topik/thread Telegram Anda!${c.reset}\n`);
   } else {
     console.log(` ${c.brightRed}✖ Gagal mengirim: ${res.reason}${c.reset}\n`);
   }

@@ -17,6 +17,7 @@ export const CONFIG = {
   TELEGRAM: {
     BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN || '',
     CHAT_ID: process.env.TELEGRAM_CHAT_ID || '',
+    THREAD_ID: process.env.TELEGRAM_THREAD_ID ? Number(process.env.TELEGRAM_THREAD_ID) : undefined,
     // Kirim notifikasi jika sisa masa aktif token <= nilai ini (default 3 hari)
     EXPIRY_ALERT_DAYS: Number(process.env.EXPIRY_ALERT_DAYS) || 3,
   },
