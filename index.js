@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { CONFIG } from './config.js';
 import { c, printBanner, printAccountCard, printSummary } from './ui.js';
+import { notifyExpiringTokens } from './telegram.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -96,22 +97,23 @@ async function request(endpoint, cookie, options = {}, retries = 2) {
 function getExpiryInfo(cookie) {
   try {
     const match = cookie.match(/auth_token=([^;\s]+)/);
-    if (!match) return null;
+    if (!match) return { text: null, diffDays: null, expDateFormatted: null };
     const parts = match[1].split('.');
-    if (parts.length < 2) return null;
+    if (parts.length < 2) return { text: null, diffDays: null, expDateFormatted: null };
     const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
-    if (!payload.exp) return null;
+    if (!payload.exp) return { text: null, diffDays: null, expDateFormatted: null };
 
     const expDate = new Date(payload.exp * 1000);
     const diffDays = Math.ceil((expDate - Date.now()) / (1000 * 60 * 60 * 24));
-    const formattedDate = expDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    const expDateFormatted = expDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 
+    let text = `${expDateFormatted} (${diffDays} hari lagi)`;
     if (diffDays <= 0) {
-      return `Kadaluarsa (${formattedDate})`;
+      text = `Kadaluarsa (${expDateFormatted})`;
     }
-    return `${formattedDate} (${diffDays} hari lagi)`;
+    return { text, diffDays, expDateFormatted };
   } catch {
-    return null;
+    return { text: null, diffDays: null, expDateFormatted: null };
   }
 }
 
@@ -194,11 +196,17 @@ async function processAccount(cookie, index, total) {
     dailyRfn: level.dailyRewardRfn,
     checkinStatus,
     checkinMsg,
-    expiryInfo,
+    expiryInfo: expiryInfo.text,
     isSuccess: true
   });
 
-  return { success: true, gems: finalGems };
+  return {
+    success: true,
+    gems: finalGems,
+    email,
+    diffDays: expiryInfo.diffDays,
+    expDateFormatted: expiryInfo.expDateFormatted
+  };
 }
 
 /**
@@ -220,12 +228,22 @@ async function main() {
   let successCount = 0;
   let failedCount = 0;
   let totalGemsAccumulated = 0;
+  const expiringAccounts = [];
 
   for (let i = 0; i < cookies.length; i++) {
     const result = await processAccount(cookies[i], i + 1, cookies.length);
     if (result.success) {
       successCount++;
       totalGemsAccumulated += result.gems;
+
+      // Catat jika masa aktif token hampir habis
+      if (result.diffDays !== null && result.diffDays <= CONFIG.TELEGRAM.EXPIRY_ALERT_DAYS) {
+        expiringAccounts.push({
+          email: result.email,
+          diffDays: result.diffDays,
+          expDateFormatted: result.expDateFormatted
+        });
+      }
     } else {
       failedCount++;
     }
@@ -242,6 +260,11 @@ async function main() {
     failed: failedCount,
     totalGems: totalGemsAccumulated
   });
+
+  // Kirim notifikasi Telegram jika ada token yang hampir habis
+  if (expiringAccounts.length > 0) {
+    await notifyExpiringTokens(expiringAccounts);
+  }
 }
 
 main();

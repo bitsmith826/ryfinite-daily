@@ -37,7 +37,16 @@ File berisi cookie asli Anda (**`cookies.txt`**) sudah otomatis terdaftar di [.g
    ```
    *(CSRF token akan otomatis diekstrak langsung dari string cookie)*
 
-4. **Jalankan program**:
+4. **(Opsional) Konfigurasi Notifikasi Telegram**:
+   Jika ingin mendapatkan peringatan saat token akun hampir habis:
+   - Salin file `.env.example` menjadi `.env`:
+     ```bash
+     cp .env.example .env
+     ```
+   - Isi `TELEGRAM_BOT_TOKEN` (dari [@BotFather](https://t.me/BotFather)) dan `TELEGRAM_CHAT_ID` (dari [@userinfobot](https://t.me/userinfobot)).
+   - Default peringatan: dikirim jika token tersisa **≤ 3 hari**.
+
+5. **Jalankan program**:
    ```bash
    npm start
    ```
@@ -47,4 +56,5 @@ File berisi cookie asli Anda (**`cookies.txt`**) sudah otomatis terdaftar di [.g
 - **Zero Dependency**: Berjalan langsung menggunakan runtime native Node.js (v18+).
 - **Auto-Retry & Network Resilience**: Otomatis mencoba ulang jika terjadi gangguan jaringan sesaat.
 - **Deteksi Masa Aktif Token**: Otomatis membaca payload JWT `auth_token` untuk memberitahu sisa masa aktif sesi.
+- **Notifikasi Telegram**: Peringatan otomatis ke Telegram jika token akun mendekati tanggal kedaluwarsa.
 - **Tampilan Modern**: Format kartu terminal rapi dengan ringkasan metrik akun di akhir eksekusi.

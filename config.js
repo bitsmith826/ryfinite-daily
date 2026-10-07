@@ -1,12 +1,25 @@
-// Konfigurasi Header & Base URL Ryfinite
-// PENTING: Cookie akun Anda disimpan di cookies.txt (jangan di sini agar aman saat di-upload ke GitHub)
+import fs from 'fs';
 
+// Muat variabel lingkungan dari .env secara native di Node.js jika ada
+if (fs.existsSync('.env')) {
+  process.loadEnvFile('.env');
+}
+
+// Konfigurasi Header & Base URL Ryfinite
 export const CONFIG = {
   BASE_URL: 'https://api.ryfinite.com',
 
   // Fallback kosong (token akun dibaca dari cookies.txt)
   COOKIE: '',
   CSRF_TOKEN: '',
+
+  // Konfigurasi Notifikasi Telegram
+  TELEGRAM: {
+    BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN || '',
+    CHAT_ID: process.env.TELEGRAM_CHAT_ID || '',
+    // Kirim notifikasi jika sisa masa aktif token <= nilai ini (default 3 hari)
+    EXPIRY_ALERT_DAYS: Number(process.env.EXPIRY_ALERT_DAYS) || 3,
+  },
 
   HEADERS: {
     'accept': '*/*',
